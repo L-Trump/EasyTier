@@ -202,6 +202,8 @@ impl RestfulServer {
             .gzip(true)
             .zstd(true)
             .quality(tower_http::compression::CompressionLevel::Default);
+        let cors_layer =
+            tower_http::cors::CorsLayer::very_permissive().allow_origin(tower_http::cors::Any);
 
         let app = Router::new()
             .route("/api/v1/summary", get(Self::handle_get_summary))
@@ -216,7 +218,7 @@ impl RestfulServer {
             )
             .layer(MessagesManagerLayer)
             .layer(auth_layer)
-            .layer(tower_http::cors::CorsLayer::very_permissive())
+            .layer(cors_layer)
             .layer(compression_layer);
 
         let task = tokio::spawn(async move {
